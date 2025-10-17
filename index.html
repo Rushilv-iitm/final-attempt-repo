@@ -1,0 +1,1114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Final Test Website</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Create, take, and grade final tests in your browser. No server required." />
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --panel:#111825;
+      --muted:#8aa0b7;
+      --text:#eaf0f6;
+      --primary:#53b2ff;
+      --primary-2:#2c94e6;
+      --accent:#22d3ee;
+      --danger:#ff5d6c;
+      --warn:#f59e0b;
+      --ok:#34d399;
+      --border:#1f2a3a;
+      --shadow: 0 8px 24px rgba(0,0,0,.35);
+    }
+    :root.light{
+      --bg:#f7fafc;
+      --panel:#ffffff;
+      --muted:#4b5563;
+      --text:#0f172a;
+      --primary:#0ea5e9;
+      --primary-2:#0284c7;
+      --accent:#06b6d4;
+      --danger:#ef4444;
+      --warn:#d97706;
+      --ok:#10b981;
+      --border:#e5e7eb;
+      --shadow: 0 6px 18px rgba(0,0,0,.12);
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji", "Segoe UI Emoji";
+      background:linear-gradient(180deg, var(--bg) 0%, #0b1220 100%);
+      color:var(--text);
+    }
+    header{
+      position:sticky; top:0; z-index:10;
+      background:linear-gradient(180deg, rgba(0,0,0,.45), rgba(0,0,0,.2)), var(--panel);
+      backdrop-filter: blur(10px);
+      border-bottom:1px solid var(--border);
+    }
+    .container{max-width:1100px;margin:0 auto;padding:16px}
+    .row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+    .grow{flex:1}
+    .brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--text)}
+    .brand svg{width:32px;height:32px}
+    nav .tab{
+      padding:10px 14px;border-radius:10px;border:1px solid transparent;color:var(--text);
+      background:transparent; cursor:pointer;
+    }
+    nav .tab.active{
+      border-color:var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+      box-shadow:var(--shadow)
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid var(--border); padding:8px 12px;border-radius:999px;background:rgba(255,255,255,.03)
+    }
+    .btn{
+      display:inline-flex; align-items:center; gap:8px;
+      background:var(--primary); color:white; border:none; padding:10px 14px; border-radius:10px;
+      cursor:pointer; transition: .15s transform ease, .15s background ease; text-decoration:none
+    }
+    .btn.secondary{background:transparent;border:1px solid var(--border); color:var(--text)}
+    .btn.warn{background:var(--warn); color:#111}
+    .btn.danger{background:var(--danger)}
+    .btn.ok{background:var(--ok); color:#072314}
+    .btn:hover{transform:translateY(-1px); background:var(--primary-2)}
+    .btn.secondary:hover{background:rgba(255,255,255,.05); transform:none}
+    .toolbar{display:flex; gap:8px; flex-wrap:wrap}
+    main .panel{
+      background:var(--panel); border:1px solid var(--border); border-radius:16px; padding:16px; box-shadow:var(--shadow); margin-top:16px
+    }
+    h1,h2,h3{margin:8px 0 10px}
+    h1{font-size:24px}
+    h2{font-size:20px}
+    p{color:var(--muted); margin:4px 0 12px}
+    input,select,textarea{
+      width:100%; padding:10px 12px; border-radius:10px; border:1px solid var(--border);
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+      color:var(--text); outline:none
+    }
+    textarea{min-height:80px; resize:vertical}
+    label{font-weight:600; font-size:14px; display:block; margin:8px 0 6px}
+    .grid{display:grid; gap:12px}
+    .grid.two{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .q{
+      border:1px dashed var(--border); border-radius:12px; padding:12px; margin:10px 0; background:rgba(255,255,255,.02)
+    }
+    .q-header{display:flex; gap:8px; align-items:center; justify-content:space-between}
+    .q-type{font-size:12px; color:var(--muted)}
+    .options{display:flex; flex-direction:column; gap:8px; margin-top:8px}
+    .option{display:flex; align-items:center; gap:10px}
+    .option input[type="text"]{flex:1}
+    .muted{color:var(--muted)}
+    .kbd{
+      font-family:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono";
+      font-size:12px; background:rgba(255,255,255,.06); border:1px solid var(--border); border-bottom-width:3px; padding:2px 6px; border-radius:6px
+    }
+    .hero{
+      display:grid; gap:16px; grid-template-columns:1.2fr .8fr; align-items:center
+    }
+    .card{
+      border:1px solid var(--border); border-radius:14px; padding:12px; background:rgba(255,255,255,.03)
+    }
+    .timer{
+      font-variant-numeric: tabular-nums; font-size:20px; font-weight:700; letter-spacing:1px
+    }
+    .bar{height:10px; border-radius:999px; background:rgba(255,255,255,.08); overflow:hidden}
+    .bar > span{display:block; height:100%; width:0%; background:linear-gradient(90deg, var(--ok), var(--warn), var(--danger)); transition:width .3s ease}
+    .tags{display:flex; gap:6px; flex-wrap:wrap}
+    .tag{padding:4px 8px; border-radius:999px; border:1px solid var(--border); font-size:12px; color:var(--muted); background:rgba(255,255,255,.03)}
+    .result{
+      border-left:6px solid var(--ok); padding-left:12px
+    }
+    .result.fail{border-left-color:var(--danger)}
+    .answer{
+      background:rgba(255,255,255,.04); border:1px solid var(--border); padding:10px; border-radius:10px; margin-top:8px
+    }
+    .flex{display:flex; gap:8px; align-items:center}
+    .right{margin-left:auto}
+    .sr-only{position:absolute !important; width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0;}
+    .hidden{display:none !important}
+    .badge{font-size:12px; padding:4px 8px; border-radius:999px; border:1px solid var(--border); background:rgba(255,255,255,.04)}
+    .footer{color:var(--muted); font-size:13px; text-align:center; padding:24px}
+    @media (max-width: 900px){
+      .hero{grid-template-columns:1fr}
+      .grid.two{grid-template-columns:1fr}
+      nav .toolbar .btn{padding:8px 10px}
+    }
+    @media print{
+      header, .toolbar, .no-print{display:none !important}
+      body{background:white}
+      .panel{box-shadow:none}
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="container row">
+      <a class="brand" href="#" onclick="switchView('take'); return false;" aria-label="Final Test home">
+        <svg viewBox="0 0 64 64" fill="none" aria-hidden="true">
+          <defs>
+            <linearGradient id="g" x1="0" x2="1" y1="0" y2="1">
+              <stop offset="0%" stop-color="#53b2ff"/><stop offset="100%" stop-color="#22d3ee"/>
+            </linearGradient>
+          </defs>
+          <rect x="6" y="10" width="52" height="44" rx="8" stroke="url(#g)" stroke-width="3" fill="rgba(255,255,255,.05)"/>
+          <path d="M14 22h36M14 30h36M14 38h24" stroke="url(#g)" stroke-width="3" stroke-linecap="round"/>
+          <circle cx="49" cy="38" r="6" fill="#34d399"/>
+          <path d="M46 38l2 2 4-5" stroke="#06351f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <div>
+          <strong>Final Test</strong>
+          <div class="muted" style="font-size:12px">Build. Take. Grade. All offline.</div>
+        </div>
+      </a>
+      <div class="grow"></div>
+      <nav class="toolbar" role="tablist" aria-label="Main tabs">
+        <button class="tab" id="tab-take" role="tab" aria-controls="view-take" aria-selected="true" onclick="switchView('take')">Take Test</button>
+        <button class="tab" id="tab-build" role="tab" aria-controls="view-build" aria-selected="false" onclick="switchView('build')">Build</button>
+        <button class="tab" id="tab-settings" role="tab" aria-controls="view-settings" aria-selected="false" onclick="switchView('settings')">Settings</button>
+      </nav>
+      <div class="pill" title="Theme">
+        <input id="themeToggle" type="checkbox" aria-label="Toggle light mode" onchange="toggleTheme(this.checked)"/>
+        <label for="themeToggle" style="margin:0; cursor:pointer">Light</label>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section id="view-take" class="panel" role="tabpanel" aria-labelledby="tab-take">
+      <div class="hero">
+        <div>
+          <h1 id="test-title">Final Test</h1>
+          <p id="test-desc">A sample final test to demonstrate features. You can take this test, or switch to Build to create your own.</p>
+          <div class="tags" id="test-meta">
+            <span class="tag"><span aria-hidden="true">⏱️</span> <span id="meta-time">15 min</span></span>
+            <span class="tag"><span aria-hidden="true">🎯</span> <span id="meta-questions">6 questions</span></span>
+            <span class="tag"><span aria-hidden="true">🔁</span> <span id="meta-shuffle">Shuffle on</span></span>
+            <span class="tag"><span aria-hidden="true">🏁</span> Pass mark: <span id="meta-pass">60%</span></span>
+          </div>
+          <div class="toolbar no-print" style="margin-top:12px">
+            <button class="btn" id="btn-start" onclick="startTest()"><span aria-hidden="true">▶️</span> Start Test</button>
+            <button class="btn secondary" onclick="downloadTestJSON()"><span aria-hidden="true">💾</span> Export Test</button>
+            <label class="btn secondary" for="importFile"><span aria-hidden="true">📤</span> Import Test</label>
+            <input id="importFile" class="sr-only" type="file" accept="application/json" onchange="handleImportFile(event)" />
+            <button class="btn secondary" onclick="printPage()" title="Print the current page"><span aria-hidden="true">🖨️</span> Print</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="row">
+            <div>
+              <div class="muted" style="font-size:12px">Timer</div>
+              <div class="timer" id="timer">Not started</div>
+            </div>
+            <div class="grow"></div>
+            <div>
+              <div class="muted" style="font-size:12px">Progress</div>
+              <div class="bar" aria-label="Progress bar"><span id="progressBar"></span></div>
+              <div class="muted" style="font-size:12px;margin-top:6px"><span id="progressText">0/0 answered</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="take-area" class="panel" style="margin-top:16px; display:none">
+        <div class="row">
+          <div class="tags">
+            <span class="badge" id="badge-shuffled">Shuffled</span>
+            <span class="badge" id="badge-locked">Auto-submit on time</span>
+          </div>
+          <div class="grow"></div>
+          <div class="toolbar">
+            <button class="btn secondary" onclick="saveProgress()"><span aria-hidden="true">💾</span> Save</button>
+            <button class="btn warn" onclick="clearProgress()" title="Clear your current answers"><span aria-hidden="true">🧹</span> Clear</button>
+            <button class="btn ok" id="btn-submit" onclick="submitTest()"><span aria-hidden="true">✅</span> Submit</button>
+          </div>
+        </div>
+        <div id="questionNav" class="tags no-print" style="margin-top:10px"></div>
+        <div id="questions"></div>
+      </div>
+
+      <div id="results" class="panel" style="display:none">
+        <div id="result-summary"></div>
+        <div id="result-details" style="margin-top:12px"></div>
+        <div class="toolbar no-print" style="margin-top:12px">
+          <button class="btn secondary" onclick="window.scrollTo({top:0, behavior:'smooth'})">Back to Top</button>
+          <button class="btn" onclick="printPage()"><span aria-hidden="true">🎓</span> Print Certificate</button>
+          <button class="btn warn" onclick="restartTest()"><span aria-hidden="true">🔁</span> Retake</button>
+        </div>
+      </div>
+    </section>
+
+    <section id="view-build" class="panel hidden" role="tabpanel" aria-labelledby="tab-build" aria-hidden="true">
+      <h2>Build Your Test</h2>
+      <p>Design, edit and manage your final test. Everything saves locally in your browser.</p>
+      <div class="grid two">
+        <div class="card">
+          <label for="b-title">Title</label>
+          <input id="b-title" oninput="builderUpdateMeta()" placeholder="Final Test Title"/>
+          <label for="b-desc">Description</label>
+          <textarea id="b-desc" oninput="builderUpdateMeta()" placeholder="Describe the goals and instructions..."></textarea>
+          <div class="grid two">
+            <div>
+              <label for="b-time">Time Limit (minutes)</label>
+              <input id="b-time" type="number" min="0" step="1" oninput="builderUpdateMeta()" />
+            </div>
+            <div>
+              <label for="b-pass">Pass Mark (%)</label>
+              <input id="b-pass" type="number" min="0" max="100" step="1" oninput="builderUpdateMeta()" />
+            </div>
+          </div>
+          <div class="grid two">
+            <div class="option">
+              <input id="b-shuffle" type="checkbox" onchange="builderUpdateMeta()"/>
+              <label for="b-shuffle" style="margin:0">Shuffle Questions</label>
+            </div>
+            <div class="option">
+              <input id="b-autosubmit" type="checkbox" onchange="builderUpdateMeta()" />
+              <label for="b-autosubmit" style="margin:0">Auto-submit when time ends</label>
+            </div>
+          </div>
+          <div class="toolbar" style="margin-top:10px">
+            <button class="btn" onclick="addQuestion('mc')">+ Multiple Choice</button>
+            <button class="btn" onclick="addQuestion('tf')">+ True/False</button>
+            <button class="btn" onclick="addQuestion('short')">+ Short Answer</button>
+          </div>
+        </div>
+        <div class="card">
+          <div class="toolbar">
+            <button class="btn secondary" onclick="downloadTestJSON()"><span aria-hidden="true">💾</span> Export JSON</button>
+            <label for="importFile2" class="btn secondary"><span aria-hidden="true">📤</span> Import JSON</label>
+            <input id="importFile2" class="sr-only" type="file" accept="application/json" onchange="handleImportFile(event)" />
+            <button class="btn warn" onclick="resetToSample()"><span aria-hidden="true">♻️</span> Reset to Sample</button>
+          </div>
+          <p class="muted">Tip: Reorder with Move Up/Down. Correct answers are marked in green.</p>
+        </div>
+      </div>
+
+      <div id="builder-list" style="margin-top:12px"></div>
+
+      <div class="toolbar" style="margin-top:12px">
+        <button class="btn ok" onclick="persistTest()"><span aria-hidden="true">✅</span> Save Test</button>
+        <button class="btn secondary" onclick="switchView('take')">Go to Take Test</button>
+      </div>
+    </section>
+
+    <section id="view-settings" class="panel hidden" role="tabpanel" aria-labelledby="tab-settings" aria-hidden="true">
+      <h2>Settings</h2>
+      <div class="grid two">
+        <div class="card">
+          <h3>Theme</h3>
+          <div class="option">
+            <input id="set-theme" type="checkbox" onchange="toggleTheme(this.checked)" />
+            <label for="set-theme" style="margin:0">Use Light Theme</label>
+          </div>
+        </div>
+        <div class="card">
+          <h3>Storage</h3>
+          <p>All data is stored locally in your browser.</p>
+          <div class="toolbar">
+            <button class="btn secondary" onclick="saveProgress()">Save Progress</button>
+            <button class="btn warn" onclick="clearProgress()">Clear Progress</button>
+          </div>
+        </div>
+        <div class="card">
+          <h3>About</h3>
+          <p>Final Test is a standalone web app to create and take exams. No sign-up, no servers.</p>
+          <ul>
+            <li>Multiple choice, True/False, Short answer</li>
+            <li>Timer and auto-submit</li>
+            <li>Shuffle, pass marks, explanations</li>
+            <li>Export/Import JSON</li>
+            <li>Print certificate</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div class="footer no-print">
+    Press ? for shortcuts. Example: S to submit, Ctrl+S to save, J/K to navigate.
+  </div>
+
+  <script>
+    // ---------- State ----------
+    const LS_KEY_TEST = 'finalTest.data.v1';
+    const LS_KEY_THEME = 'finalTest.theme';
+    const LS_KEY_PROGRESS = 'finalTest.progress.v1';
+
+    let test = null; // active test model
+    let currentView = 'take';
+    let taking = {
+      started: false,
+      endsAt: 0,
+      timeLimitSec: 0,
+      timerId: null,
+      shuffled: false,
+      orderMap: [], // [{from,to}]
+      answers: {}, // qid -> value
+      submitted: false,
+      score: null, // {total, earned, percent, pass}
+      result: null // per-question results
+    };
+
+    // ---------- Utilities ----------
+    const uid = () => Math.random().toString(36).slice(2,10);
+    const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
+    const escapeHtml = (s) => (''+s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+    const deepClone = (o) => JSON.parse(JSON.stringify(o));
+
+    function defaultTest(){
+      return {
+        title: "Final Test: Web Fundamentals",
+        description: "Answer all questions. Passing score is 60%. Timer is enabled. Explanations provided after submission.",
+        passMark: 60,
+        timeLimitMinutes: 15,
+        shuffle: true,
+        autoSubmitOnTime: true,
+        questions: [
+          {
+            id: uid(), type: 'mc', points: 2,
+            text: "Which HTML tag is semantic and represents standalone content like a blog post?",
+            options: ["div", "article", "span", "b"],
+            correct: 1,
+            explanation: "article is used for self-contained content that could be independently distributed."
+          },
+          {
+            id: uid(), type: 'tf', points: 1,
+            text: "In CSS, margin collapses between a parent and its floated child.",
+            correct: false,
+            explanation: "Margin collapsing does not occur with floated or absolutely positioned elements."
+          },
+          {
+            id: uid(), type: 'short', points: 3,
+            text: "Name the HTTP method commonly used to retrieve data without side-effects.",
+            correct: ["GET","get"],
+            explanation: "GET requests are safe and idempotent for retrieval."
+          },
+          {
+            id: uid(), type: 'mc', points: 2,
+            text: "Which JavaScript feature allows functions to be passed as values?",
+            options: ["Prototypal inheritance", "First-class functions", "Hoisting", "Closures"],
+            correct: 1,
+            explanation: "In JavaScript, functions are first-class citizens."
+          },
+          {
+            id: uid(), type: 'tf', points: 2,
+            text: "Flexbox is one-dimensional while CSS Grid is two-dimensional.",
+            correct: true,
+            explanation: "Flexbox lays out items in one dimension; Grid in rows and columns."
+          },
+          {
+            id: uid(), type: 'short', points: 5,
+            text: "What attribute improves image loading by deferring off-screen images in HTML?",
+            correct: ["loading","loading=\"lazy\"","lazy","loading=lazy"],
+            explanation: "Use loading=\"lazy\" on images to defer off-screen loading."
+          }
+        ]
+      };
+    }
+
+    function loadTest(){
+      try{
+        const raw = localStorage.getItem(LS_KEY_TEST);
+        if(raw){
+          test = JSON.parse(raw);
+          // ensure some ids
+          test.questions.forEach(q => { if(!q.id) q.id = uid(); });
+        }else{
+          test = defaultTest();
+        }
+      }catch(e){
+        console.error(e);
+        test = defaultTest();
+      }
+      applyTestToUI();
+    }
+
+    function persistTest(){
+      localStorage.setItem(LS_KEY_TEST, JSON.stringify(test));
+      applyTestToUI();
+      alert('Test saved locally.');
+    }
+
+    function resetToSample(){
+      if(!confirm('Reset to the sample test? This will overwrite the current test in the builder.')) return;
+      test = defaultTest();
+      persistTest();
+      renderBuilder();
+    }
+
+    function saveProgress(){
+      localStorage.setItem(LS_KEY_PROGRESS, JSON.stringify({answers: taking.answers, started: taking.started, endsAt: taking.endsAt}));
+      alert('Progress saved.');
+    }
+
+    function clearProgress(){
+      if(!confirm('Clear saved answers and timer?')) return;
+      localStorage.removeItem(LS_KEY_PROGRESS);
+      taking.answers = {};
+      updateProgress();
+      renderTakeQuestions();
+      alert('Progress cleared.');
+    }
+
+    // ---------- Theme ----------
+    function initTheme(){
+      const t = localStorage.getItem(LS_KEY_THEME) || 'dark';
+      const isLight = t === 'light';
+      document.documentElement.classList.toggle('light', isLight);
+      document.getElementById('themeToggle').checked = isLight;
+      const st = document.getElementById('set-theme');
+      if(st) st.checked = isLight;
+    }
+    function toggleTheme(isLight){
+      document.documentElement.classList.toggle('light', isLight);
+      localStorage.setItem(LS_KEY_THEME, isLight ? 'light' : 'dark');
+      const st = document.getElementById('set-theme');
+      if(st) st.checked = isLight;
+      const tt = document.getElementById('themeToggle');
+      if(tt) tt.checked = isLight;
+    }
+
+    // ---------- Nav ----------
+    function switchView(view){
+      currentView = view;
+      ['take','build','settings'].forEach(v=>{
+        document.getElementById('view-'+v).classList.toggle('hidden', v!==view);
+        document.getElementById('view-'+v).setAttribute('aria-hidden', v!==view ? 'true':'false');
+        document.getElementById('tab-'+v).classList.toggle('active', v===view);
+        document.getElementById('tab-'+v).setAttribute('aria-selected', v===view ? 'true':'false');
+      });
+      if(view==='build') renderBuilder();
+      if(view==='take') applyTestToUI();
+    }
+
+    // ---------- Take Test ----------
+    function applyTestToUI(){
+      // Header info
+      document.getElementById('test-title').textContent = test.title || 'Final Test';
+      document.getElementById('test-desc').textContent = test.description || '';
+      document.getElementById('meta-time').textContent = (test.timeLimitMinutes||0) > 0 ? `${test.timeLimitMinutes} min` : 'No limit';
+      document.getElementById('meta-questions').textContent = `${test.questions.length} question${test.questions.length!==1?'s':''}`;
+      document.getElementById('meta-shuffle').textContent = test.shuffle ? 'Shuffle on' : 'Shuffle off';
+      document.getElementById('meta-pass').textContent = `${test.passMark ?? 0}%`;
+
+      document.getElementById('badge-shuffled').style.display = test.shuffle ? 'inline-flex' : 'none';
+      document.getElementById('badge-locked').style.display = test.autoSubmitOnTime ? 'inline-flex' : 'none';
+
+      // Reset taking state (but preserve saved progress if any and not started)
+      const saved = JSON.parse(localStorage.getItem(LS_KEY_PROGRESS) || 'null');
+
+      taking.started = false;
+      taking.answers = {};
+      taking.submitted = false;
+      taking.score = null;
+      taking.result = null;
+      taking.orderMap = test.questions.map((_, i)=>({from:i,to:i}));
+      taking.shuffled = false;
+      stopTimer();
+      updateTimerLabel('Not started');
+      document.getElementById('progressBar').style.width = '0%';
+      document.getElementById('progressText').textContent = `0/${test.questions.length} answered`;
+
+      if(saved && saved.answers){
+        taking.answers = saved.answers;
+        // if there was an active timer and not expired, resume
+        if(saved.started && saved.endsAt && Date.now() < saved.endsAt){
+          taking.started = true;
+          taking.endsAt = saved.endsAt;
+          taking.timeLimitSec = (test.timeLimitMinutes||0)*60;
+          startTimer(true);
+          document.getElementById('take-area').style.display = '';
+          renderTakeQuestions();
+        }
+      }
+      renderQuestionNav();
+    }
+
+    function renderQuestionNav(){
+      const nav = document.getElementById('questionNav');
+      nav.innerHTML = '';
+      test.questions.forEach((q, i)=>{
+        const b = document.createElement('button');
+        b.className = 'btn secondary';
+        b.style.padding='6px 10px';
+        b.textContent = String(i+1);
+        b.title = 'Jump to question '+(i+1);
+        b.onclick = ()=> {
+          const el = document.getElementById('q-'+q.id);
+          if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+        };
+        nav.appendChild(b);
+      });
+    }
+
+    function startTest(){
+      if(taking.started){
+        alert('Test already started.');
+        return;
+      }
+      // Shuffle if needed
+      const arr = test.questions;
+      if(test.shuffle){
+        const idx = arr.map((_,i)=>i);
+        for(let i=idx.length-1;i>0;i--){
+          const j = Math.floor(Math.random()*(i+1));
+          [idx[i], idx[j]] = [idx[j], idx[i]];
+        }
+        // remap questions order
+        const newQ = idx.map(i=>arr[i]);
+        taking.orderMap = idx.map((fromIndex, newIndex)=>({from: fromIndex, to: newIndex, id: newQ[newIndex].id}));
+        test.questions = newQ;
+        taking.shuffled = true;
+      }else{
+        taking.shuffled = false;
+      }
+      // Timer
+      taking.timeLimitSec = (test.timeLimitMinutes||0)*60;
+      taking.started = true;
+      if(taking.timeLimitSec>0){
+        taking.endsAt = Date.now() + taking.timeLimitSec*1000;
+      }else{
+        taking.endsAt = 0;
+      }
+      startTimer(false);
+      // Show UI
+      document.getElementById('take-area').style.display = '';
+      document.getElementById('results').style.display = 'none';
+      renderTakeQuestions();
+      saveProgress();
+    }
+
+    function renderTakeQuestions(){
+      const area = document.getElementById('questions');
+      area.innerHTML = '';
+      test.questions.forEach((q, index)=>{
+        const wrap = document.createElement('div');
+        wrap.className = 'q';
+        wrap.id = 'q-'+q.id;
+
+        // header
+        const head = document.createElement('div');
+        head.className = 'q-header';
+        const left = document.createElement('div');
+        left.innerHTML = `<strong>Q${index+1}.</strong> ${escapeHtml(q.text)}`;
+        const right = document.createElement('div');
+        right.innerHTML = `<span class="q-type">${q.type.toUpperCase()} • ${q.points} pt${q.points!==1?'s':''}</span>`;
+        head.appendChild(left); head.appendChild(right);
+        wrap.appendChild(head);
+
+        const opts = document.createElement('div');
+        opts.className = 'options';
+        const ans = taking.answers[q.id];
+
+        if(q.type==='mc'){
+          q.options.forEach((opt, i)=>{
+            const row = document.createElement('label');
+            row.className = 'option';
+            const input = document.createElement('input');
+            input.type = 'radio'; input.name = 'q-'+q.id; input.value = String(i);
+            input.checked = String(ans) === String(i);
+            input.onchange = ()=>{ taking.answers[q.id] = i; updateProgress(); saveProgress(); };
+            row.appendChild(input);
+            const text = document.createElement('div');
+            text.textContent = opt;
+            row.appendChild(text);
+            opts.appendChild(row);
+          });
+        }else if(q.type==='tf'){
+          [['True', true], ['False', false]].forEach(([label, val])=>{
+            const row = document.createElement('label');
+            row.className = 'option';
+            const input = document.createElement('input');
+            input.type = 'radio'; input.name = 'q-'+q.id; input.value = String(val);
+            input.checked = String(ans) === String(val);
+            input.onchange = ()=>{ taking.answers[q.id] = (val===true); updateProgress(); saveProgress(); };
+            row.appendChild(input);
+            const text = document.createElement('div');
+            text.textContent = label;
+            row.appendChild(text);
+            opts.appendChild(row);
+          });
+        }else if(q.type==='short'){
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.placeholder = 'Type your answer...';
+          input.value = ans ?? '';
+          input.oninput = ()=>{ taking.answers[q.id] = input.value; updateProgress(); saveProgress(); };
+          opts.appendChild(input);
+          const help = document.createElement('div');
+          help.className = 'muted';
+          help.style.fontSize='12px';
+          help.textContent = 'Short answers are graded by exact match (case-insensitive).';
+          opts.appendChild(help);
+        }
+
+        wrap.appendChild(opts);
+        area.appendChild(wrap);
+      });
+      updateProgress();
+    }
+
+    function updateProgress(){
+      const total = test.questions.length;
+      let answered = 0;
+      test.questions.forEach(q=>{
+        const a = taking.answers[q.id];
+        if(q.type==='short'){ if(a && String(a).trim()!=='') answered++; }
+        else if(a !== undefined) answered++;
+      });
+      const pct = total>0 ? Math.round((answered/total)*100) : 0;
+      document.getElementById('progressBar').style.width = pct+'%';
+      document.getElementById('progressText').textContent = `${answered}/${total} answered`;
+      // update nav styles
+      const nav = document.getElementById('questionNav');
+      [...nav.children].forEach((btn, i)=>{
+        const q = test.questions[i];
+        const done = taking.answers[q.id] !== undefined && (q.type!=='short' || String(taking.answers[q.id]).trim()!=='');
+        btn.style.borderColor = done ? 'var(--ok)' : 'var(--border)';
+        btn.style.color = done ? 'var(--ok)' : 'var(--text)';
+      });
+    }
+
+    function startTimer(resume){
+      stopTimer();
+      if(taking.timeLimitSec<=0){ updateTimerLabel('No time limit'); return; }
+      const tick = ()=>{
+        const msLeft = taking.endsAt - Date.now();
+        if(msLeft <= 0){
+          updateTimerLabel('00:00');
+          stopTimer();
+          if(test.autoSubmitOnTime && !taking.submitted){
+            submitTest(true);
+          }
+          return;
+        }
+        const totalSec = Math.ceil(msLeft/1000);
+        const mm = String(Math.floor(totalSec/60)).padStart(2,'0');
+        const ss = String(totalSec%60).padStart(2,'0');
+        updateTimerLabel(`${mm}:${ss}`);
+      };
+      tick();
+      taking.timerId = setInterval(tick, 250);
+    }
+
+    function stopTimer(){
+      if(taking.timerId){ clearInterval(taking.timerId); taking.timerId = null; }
+    }
+
+    function updateTimerLabel(text){
+      document.getElementById('timer').textContent = text;
+    }
+
+    function grade(){
+      let total = 0, earned = 0;
+      const details = [];
+      test.questions.forEach((q, idx)=>{
+        total += q.points;
+        let isCorrect = false, expected = q.correct, given = taking.answers[q.id];
+        if(q.type==='mc'){
+          isCorrect = Number(given) === Number(expected);
+        }else if(q.type==='tf'){
+          isCorrect = String(given) === String(expected);
+        }else if(q.type==='short'){
+          const list = Array.isArray(expected) ? expected : [expected];
+          const norm = (s)=> String(s||'').trim().toLowerCase();
+          isCorrect = list.some(v => norm(v) === norm(given));
+        }
+        const pts = isCorrect ? q.points : 0;
+        earned += pts;
+        details.push({index: idx, qid: q.id, isCorrect, points: pts, expected, given});
+      });
+      const percent = total>0 ? Math.round((earned/total)*100) : 0;
+      const pass = percent >= (test.passMark ?? 0);
+      return { total, earned, percent, pass, details };
+    }
+
+    function submitTest(auto=false){
+      if(!taking.started){ alert('You need to start the test first.'); return; }
+      if(taking.submitted){
+        if(!auto) alert('Already submitted.');
+        return;
+      }
+      taking.submitted = true;
+      stopTimer();
+      // grade
+      const res = grade();
+      taking.score = {total: res.total, earned: res.earned, percent: res.percent, pass: res.pass};
+      taking.result = res.details;
+      // show results
+      showResults();
+      // focus
+      document.getElementById('results').scrollIntoView({behavior:'smooth'});
+    }
+
+    function showResults(){
+      document.getElementById('results').style.display = '';
+      const s = taking.score;
+      const summary = document.getElementById('result-summary');
+      summary.className = 'result ' + (s.pass ? '' : 'fail');
+      summary.innerHTML = `
+        <h2>Results</h2>
+        <p><strong>Score:</strong> ${s.earned}/${s.total} • ${s.percent}% ${s.pass ? '✅ Passed' : '❌ Failed'} (Pass mark: ${test.passMark ?? 0}%)</p>
+        <div class="bar" aria-label="Score bar"><span style="width:${s.percent}%; background:${s.pass?'var(--ok)':'var(--danger)'}"></span></div>
+      `;
+
+      const det = document.getElementById('result-details');
+      det.innerHTML = '';
+      taking.result.forEach(item=>{
+        const q = test.questions[item.index];
+        const box = document.createElement('div');
+        box.className = 'q';
+        const title = document.createElement('div');
+        title.className = 'q-header';
+        const status = item.isCorrect ? `<span class="badge" style="border-color:var(--ok); color:var(--ok)">Correct</span>` : `<span class="badge" style="border-color:var(--danger); color:var(--danger)">Incorrect</span>`;
+        title.innerHTML = `<div><strong>Q${item.index+1}.</strong> ${escapeHtml(q.text)}</div><div>${status} • ${item.points}/${q.points} pts</div>`;
+        box.appendChild(title);
+
+        const ans = document.createElement('div');
+        ans.className = 'answer';
+
+        const exp = typeof q.explanation === 'string' && q.explanation.trim() !== '' ? `<div class="muted" style="margin-top:8px"><strong>Why:</strong> ${escapeHtml(q.explanation)}</div>` : '';
+
+        let expectedTxt = '';
+        if(q.type==='mc'){
+          expectedTxt = q.options[q.correct];
+        }else if(q.type==='tf'){
+          expectedTxt = String(q.correct);
+        }else if(q.type==='short'){
+          expectedTxt = Array.isArray(q.correct) ? q.correct.join(' / ') : String(q.correct);
+        }
+        let givenTxt = '';
+        if(q.type==='mc'){ givenTxt = q.options[item.given] ?? '(no answer)'; }
+        else if(q.type==='tf'){ givenTxt = item.given===undefined ? '(no answer)' : String(item.given); }
+        else if(q.type==='short'){ givenTxt = (item.given===undefined || String(item.given).trim()==='') ? '(no answer)' : String(item.given); }
+
+        ans.innerHTML = `
+          <div><strong>Your answer:</strong> ${escapeHtml(givenTxt)}</div>
+          <div style="margin-top:6px"><strong>Correct answer:</strong> ${escapeHtml(expectedTxt)}</div>
+          ${exp}
+        `;
+        box.appendChild(ans);
+        det.appendChild(box);
+      });
+    }
+
+    function restartTest(){
+      if(!confirm('Reset answers and retake?')) return;
+      // reload original from storage (to restore original order before shuffling again)
+      loadTest();
+      taking.answers = {};
+      taking.submitted = false;
+      taking.started = false;
+      document.getElementById('results').style.display = 'none';
+      document.getElementById('take-area').style.display = 'none';
+      updateTimerLabel('Not started');
+      renderQuestionNav();
+      localStorage.removeItem(LS_KEY_PROGRESS);
+      window.scrollTo({top:0, behavior:'smooth'});
+    }
+
+    function printPage(){ window.print(); }
+
+    // ---------- Builder ----------
+    function renderBuilder(){
+      // meta
+      document.getElementById('b-title').value = test.title || '';
+      document.getElementById('b-desc').value = test.description || '';
+      document.getElementById('b-time').value = test.timeLimitMinutes ?? 0;
+      document.getElementById('b-pass').value = test.passMark ?? 0;
+      document.getElementById('b-shuffle').checked = !!test.shuffle;
+      document.getElementById('b-autosubmit').checked = !!test.autoSubmitOnTime;
+
+      const list = document.getElementById('builder-list');
+      list.innerHTML = '';
+      if(test.questions.length === 0){
+        list.innerHTML = `<div class="card">No questions yet. Use the buttons above to add one.</div>`;
+        return;
+      }
+      test.questions.forEach((q, i)=>{
+        const card = document.createElement('div');
+        card.className = 'q';
+        card.innerHTML = `
+          <div class="q-header">
+            <div><strong>#${i+1}</strong> • <span class="q-type">${q.type.toUpperCase()}</span> • ${q.points} pt${q.points!==1?'s':''}</div>
+            <div class="toolbar">
+              <button class="btn secondary" title="Move up" ${i===0?'disabled':''} onclick="moveQuestion(${i},-1)">⬆️</button>
+              <button class="btn secondary" title="Move down" ${i===test.questions.length-1?'disabled':''} onclick="moveQuestion(${i},1)">⬇️</button>
+              <button class="btn warn" title="Delete" onclick="deleteQuestion(${i})">🗑️</button>
+            </div>
+          </div>
+        `;
+
+        const fields = document.createElement('div');
+        fields.className = 'grid two';
+        fields.innerHTML = `
+          <div class="col-span">
+            <label>Question Text</label>
+            <textarea oninput="editQuestion(${i}, 'text', this.value)">${escapeHtml(q.text)}</textarea>
+          </div>
+          <div>
+            <label>Type</label>
+            <select onchange="changeType(${i}, this.value)">
+              <option value="mc" ${q.type==='mc'?'selected':''}>Multiple Choice</option>
+              <option value="tf" ${q.type==='tf'?'selected':''}>True/False</option>
+              <option value="short" ${q.type==='short'?'selected':''}>Short Answer</option>
+            </select>
+          </div>
+          <div>
+            <label>Points</label>
+            <input type="number" min="1" step="1" value="${q.points}" oninput="editQuestion(${i}, 'points', Number(this.value)||1)"/>
+          </div>
+        `;
+        card.appendChild(fields);
+
+        const area = document.createElement('div');
+        if(q.type==='mc'){
+          const opts = document.createElement('div');
+          opts.className='options';
+          q.options.forEach((opt, oi)=>{
+            const row = document.createElement('div');
+            row.className = 'option';
+            const radio = document.createElement('input');
+            radio.type = 'radio'; radio.name = 'b-correct-'+i; radio.checked = Number(q.correct)===oi;
+            radio.title = 'Mark as correct';
+            radio.onchange = ()=> editQuestion(i, 'correct', oi);
+            const txt = document.createElement('input');
+            txt.type='text'; txt.value = opt;
+            txt.oninput = ()=> editOption(i, oi, txt.value);
+            if(Number(q.correct)===oi){
+              txt.style.borderColor='var(--ok)';
+              txt.style.background='rgba(52,211,153,.08)';
+            }
+            const del = document.createElement('button');
+            del.className='btn secondary'; del.textContent='✖'; del.title='Remove option';
+            del.onclick = ()=> removeOption(i, oi);
+            row.appendChild(radio); row.appendChild(txt); row.appendChild(del);
+            opts.appendChild(row);
+          });
+          const add = document.createElement('button');
+          add.className='btn'; add.textContent='+ Add Option';
+          add.onclick = ()=> addOption(i);
+          area.appendChild(opts); area.appendChild(add);
+        }else if(q.type==='tf'){
+          area.innerHTML = `
+            <div class="options">
+              <label class="option"><input type="radio" name="b-tf-${i}" ${q.correct===true?'checked':''} onchange="editQuestion(${i}, 'correct', true)"/> True</label>
+              <label class="option"><input type="radio" name="b-tf-${i}" ${q.correct===false?'checked':''} onchange="editQuestion(${i}, 'correct', false)"/> False</label>
+            </div>
+          `;
+        }else if(q.type==='short'){
+          const help = document.createElement('div');
+          help.className='muted'; help.style.marginBottom='6px';
+          help.textContent = 'Provide one or more acceptable answers (case-insensitive).';
+          const listWrap = document.createElement('div');
+          listWrap.className='options';
+          const arr = Array.isArray(q.correct) ? q.correct : [q.correct];
+          arr.forEach((ans, ai)=>{
+            const row = document.createElement('div');
+            row.className='option';
+            const txt = document.createElement('input');
+            txt.type='text'; txt.value = ans;
+            txt.oninput = ()=> editShortAnswer(i, ai, txt.value);
+            const del = document.createElement('button');
+            del.className='btn secondary'; del.textContent='✖'; del.onclick = ()=> removeShortAnswer(i, ai);
+            row.appendChild(txt); row.appendChild(del);
+            listWrap.appendChild(row);
+          });
+          const add = document.createElement('button');
+          add.className='btn'; add.textContent='+ Add Accepted Answer';
+          add.onclick = ()=> addShortAnswer(i);
+          area.appendChild(help); area.appendChild(listWrap); area.appendChild(add);
+        }
+
+        const exp = document.createElement('div');
+        exp.innerHTML = `
+          <label>Explanation (optional)</label>
+          <textarea oninput="editQuestion(${i}, 'explanation', this.value)">${escapeHtml(q.explanation ?? '')}</textarea>
+        `;
+
+        card.appendChild(area);
+        card.appendChild(exp);
+        list.appendChild(card);
+      });
+    }
+
+    function builderUpdateMeta(){
+      test.title = document.getElementById('b-title').value;
+      test.description = document.getElementById('b-desc').value;
+      test.timeLimitMinutes = Number(document.getElementById('b-time').value)||0;
+      test.passMark = clamp(Number(document.getElementById('b-pass').value)||0, 0, 100);
+      test.shuffle = document.getElementById('b-shuffle').checked;
+      test.autoSubmitOnTime = document.getElementById('b-autosubmit').checked;
+      applyTestToUI();
+    }
+
+    function addQuestion(type){
+      const base = { id: uid(), type, text: '', points: 1, explanation: '' };
+      if(type==='mc'){
+        base.options = ['Option A', 'Option B'];
+        base.correct = 0;
+      }else if(type==='tf'){
+        base.correct = true;
+      }else if(type==='short'){
+        base.correct = [''];
+      }
+      test.questions.push(base);
+      renderBuilder();
+    }
+
+    function deleteQuestion(i){
+      if(!confirm('Delete this question?')) return;
+      test.questions.splice(i,1);
+      renderBuilder();
+      applyTestToUI();
+    }
+
+    function moveQuestion(i, delta){
+      const j = i + delta;
+      if(j<0 || j>=test.questions.length) return;
+      const tmp = test.questions[i];
+      test.questions[i] = test.questions[j];
+      test.questions[j] = tmp;
+      renderBuilder();
+      applyTestToUI();
+    }
+
+    function editQuestion(i, key, value){
+      if(key==='points'){ value = Math.max(1, Math.round(value||1)); }
+      test.questions[i][key] = value;
+      renderBuilder();
+    }
+
+    function changeType(i, type){
+      const q = test.questions[i];
+      q.type = type;
+      if(type==='mc' && !q.options){ q.options = ['Option A','Option B']; q.correct = 0; }
+      if(type==='tf'){ delete q.options; q.correct = true; }
+      if(type==='short'){ delete q.options; q.correct = ['']; }
+      renderBuilder();
+    }
+
+    function addOption(i){
+      const q = test.questions[i];
+      q.options.push('New option');
+      renderBuilder();
+    }
+    function editOption(i, oi, value){
+      const q = test.questions[i];
+      q.options[oi] = value;
+    }
+    function removeOption(i, oi){
+      const q = test.questions[i];
+      if(q.options.length<=2){ alert('Keep at least two options.'); return; }
+      q.options.splice(oi,1);
+      if(Number(q.correct) >= q.options.length){ q.correct = 0; }
+      renderBuilder();
+    }
+
+    function addShortAnswer(i){
+      const q = test.questions[i];
+      if(!Array.isArray(q.correct)) q.correct=[String(q.correct??'')];
+      q.correct.push('');
+      renderBuilder();
+    }
+    function editShortAnswer(i, ai, value){
+      const q = test.questions[i];
+      if(!Array.isArray(q.correct)) q.correct=[String(q.correct??'')];
+      q.correct[ai] = value;
+    }
+    function removeShortAnswer(i, ai){
+      const q = test.questions[i];
+      if(!Array.isArray(q.correct)) q.correct=[String(q.correct??'')];
+      if(q.correct.length<=1){ alert('Keep at least one acceptable answer.'); return; }
+      q.correct.splice(ai,1);
+      renderBuilder();
+    }
+
+    // ---------- Import/Export ----------
+    function downloadTestJSON(){
+      const data = JSON.stringify(test, null, 2);
+      const blob = new Blob([data], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const safeTitle = (test.title || 'final-test').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'');
+      a.download = `${safeTitle}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    function handleImportFile(e){
+      const file = e.target.files[0];
+      if(!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try{
+          const data = JSON.parse(reader.result);
+          if(!data || !Array.isArray(data.questions)) throw new Error('Invalid format');
+          // ensure ids
+          data.questions.forEach(q=>{ if(!q.id) q.id = uid(); });
+          test = data;
+          persistTest();
+          renderBuilder();
+          applyTestToUI();
+          alert('Test imported.');
+        }catch(err){
+          alert('Failed to import: '+err.message);
+        }finally{
+          e.target.value = '';
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    // ---------- Shortcuts ----------
+    document.addEventListener('keydown', (ev)=>{
+      const tag = (ev.target.tagName||'').toLowerCase();
+      const typing = tag==='input' || tag==='textarea' || ev.target.isContentEditable;
+      if(ev.key==='?' && !typing){
+        ev.preventDefault();
+        alert('Shortcuts:\n\nS = Submit\nCtrl+S = Save progress\nJ/K = Next/Prev question\nG = Go to top');
+      }
+      if(ev.key.toLowerCase()==='s' && !typing){
+        if(ev.ctrlKey || ev.metaKey){
+          ev.preventDefault();
+          saveProgress();
+        }else{
+          if(currentView==='take'){ ev.preventDefault(); submitTest(); }
+        }
+      }
+      if(currentView==='take' && !typing){
+        if(ev.key.toLowerCase()==='j'){ jumpQuestion(1); }
+        if(ev.key.toLowerCase()==='k'){ jumpQuestion(-1); }
+        if(ev.key.toLowerCase()==='g'){ window.scrollTo({top:0, behavior:'smooth'}); }
+      }
+    });
+
+    function jumpQuestion(delta){
+      // find current in view
+      const qs = test.questions;
+      let idx = 0;
+      const offsets = qs.map((q,i)=>({i, top: document.getElementById('q-'+q.id)?.getBoundingClientRect().top || 0}));
+      const closer = offsets.reduce((best, o, i)=>{
+        const d = Math.abs(o.top - 100);
+        return d < best.d ? {d, i:o.i} : best;
+      }, {d: Infinity, i: 0});
+      idx = closer.i + delta;
+      idx = clamp(idx, 0, qs.length-1);
+      const el = document.getElementById('q-'+qs[idx].id);
+      if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+    }
+
+    // ---------- Init ----------
+    initTheme();
+    loadTest();
+  </script>
+</body>
+</html>
